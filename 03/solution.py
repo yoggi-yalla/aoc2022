@@ -1,3 +1,5 @@
+import string
+
 with open('input.txt') as f:
     data = f.read()
 
@@ -10,9 +12,7 @@ for line in data.splitlines():
     intersection = set.intersection(left, right)
     item = next(iter(intersection))
 
-    offset = 96 if item.islower() else 38
-
-    p += ord(item) - offset
+    p += string.ascii_letters.find(item) + 1
     
 print("Part 1:", p)
 
@@ -26,11 +26,9 @@ while i < len(lines):
     e1, e2, e3 = set(e1), set(e2), set(e3)
 
     intersection = set.intersection(e1, e2, e3)
-    item = next(iter(intersection))
+    badge = next(iter(intersection))
 
-    offset = 96 if item.islower() else 38
-
-    p += ord(item) - offset
+    p += string.ascii_letters.find(badge) + 1
     i += 3
 
 print("Part 2:", p)
