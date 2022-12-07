@@ -1,70 +1,49 @@
-from collections import defaultdict
-
 with open('input.txt') as f:
     data = f.read()
 
 
-tree = defaultdict(list)
-lines = data.splitlines()
-lines.reverse()
+directories = ["/"]
+file_to_size = {}
 
-cwd = tuple()
+cwd = ""
+for line in data.splitlines():
+    if line == "$ cd /":
+        cwd = "/"
 
-while lines:
-    line = lines.pop()
-    if line == "$ cd ..":
-        cwd = tuple((*cwd[:-1],))
-        continue
-    if line.startswith('$ cd'):
-        cwd = tuple((*cwd, line.split()[-1]))
-        continue
+    elif line == "$ cd ..":
+        cwd = cwd.rsplit("/", 2)[0] + "/"
 
-    if line == "$ ls":
-        while lines:
-            subline = lines.pop()
-            if subline.startswith('$'):
-                lines.append(subline)
-                break
-            
-            l, r = subline.split()
-            if l.isnumeric():
-                tree[cwd].append([r, int(l)])
-            else:
-                tree[cwd].append(tuple((*cwd, r)))
-
-
-def size(cwd, tree):
-    s = 0
-
-    node = tree[cwd]
-    for subnode in node:
-        if type(subnode) == list:
-            s += subnode[-1]
+    elif line.startswith("$ cd"):
+        cwd += line.split()[-1] + "/"
+    
+    elif line == "$ ls":
+        pass
+    
+    else:
+        if line.startswith("dir"):
+            directories.append(cwd + line.split()[1])
         else:
-            s += size(subnode, tree)
-
-    return s
-
-
-sizes = []
-for cwd in tree:    
-    sizes.append(size(cwd, tree))
-sizes.sort()
+            size, name = line.split()
+            file_to_size[cwd + name] = int(size)
 
 
-part1 = 0
-for c in sizes:
-    if c >= 100000:
-        break
-    part1 += c
-print("Part 1:", part1)
+directory_to_size = {}
+for directory in directories:
+    size = 0
+    for file, s in file_to_size.items():
+        if file.startswith(directory):
+            size += s
+    directory_to_size[directory] = size
 
 
 total_memory = 70000000
-free_memory = total_memory - sizes[-1]
-missing_memory = 30000000 - free_memory
+free_memory = total_memory - directory_to_size["/"]
+requirement = 30000000 - free_memory
 
-for s in sizes:
-    if s >= missing_memory:
-        print("Part 2:", s)
-        break
+
+part_1 = sum(v for v in directory_to_size.values() if v <= 100000)
+part_2 = min(v for v in directory_to_size.values() if v >= requirement)
+
+
+print("Part 1:", part_1)
+print("Part 2:", part_2)
