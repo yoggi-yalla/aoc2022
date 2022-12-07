@@ -2,7 +2,7 @@ with open('input.txt') as f:
     data = f.read()
 
 
-directories = ["/"]
+directories = []
 file_to_size = {}
 
 cwd = ""
@@ -37,7 +37,7 @@ for directory in directories:
 
 
 total_memory = 70000000
-free_memory = total_memory - directory_to_size["/"]
+free_memory = total_memory - sum(s for s in file_to_size.values())
 requirement = 30000000 - free_memory
 
 
