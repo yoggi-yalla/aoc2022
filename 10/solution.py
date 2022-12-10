@@ -1,6 +1,3 @@
-from signal import signal
-
-
 with open('input.txt') as f:
     data = f.read()
 
@@ -9,7 +6,7 @@ grid  = [["." for _ in range(40)] for _ in range(6)]
 
 
 def process(grid, clock, x, signal_strengths):
-    if clock in (20, 60, 100, 140, 180, 220):
+    if clock % 40 == 20:
         signal_strengths.append(clock * x)
 
     row = (clock - 1) // 40
