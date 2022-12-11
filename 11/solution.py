@@ -8,7 +8,6 @@ with open('input.txt') as f:
 groups = data.split('\n\n')
 
 monkeys = []
-counts = [0] * len(groups)
 gcd = 1
 
 
@@ -26,8 +25,9 @@ for i, g in enumerate(groups):
     monkeys.append((items, op, test, t, f))
 
 
+def run(monkeys, iterations, part_1):
+    counts = [0] * len(monkeys)
 
-def run(monkeys, counts, iterations, part_1):
     for _ in range(iterations):
         for i, m in enumerate(monkeys):
             items, op, test, t, f = m
@@ -54,8 +54,6 @@ def run(monkeys, counts, iterations, part_1):
 
 
 monkeys2 = deepcopy(monkeys)
-counts2 = deepcopy(counts)
 
-
-print("Part 1:", run(monkeys, counts, 20, True))
-print("Part 2:", run(monkeys2, counts2, 10000, False))
+print("Part 1:", run(monkeys, 20, True))
+print("Part 2:", run(monkeys2, 10000, False))
