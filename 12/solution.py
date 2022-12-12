@@ -30,19 +30,11 @@ directions = (
 )
 
 
-def in_grid(n):
-    i, j = n
-    if i < 0 or i >= HEIGHT or j < 0 or j >= WIDTH:
-        return False
-    return True
-
-
-def neighbors(n):
-    i,j = n
+def neighbors(i, j):
     for di, dj in directions:
-        ii,jj = i+di, j+dj
-        if in_grid((ii,jj)):
-            yield (ii,jj)
+        ii, jj = i + di, j + dj
+        if 0 <= ii < HEIGHT and 0 <= jj < WIDTH:
+            yield (ii, jj)
 
 
 def run(part_1):
@@ -55,23 +47,21 @@ def run(part_1):
         for i in range(HEIGHT):
             for j in range(WIDTH):
                 if grid[i][j] == ord('a'):
-                    q.append((0, (i,j)))
+                    q.append((0, (i, j)))
 
     while q:
-        cost, current = heapq.heappop(q)
+        cost, (i, j) = heapq.heappop(q)
 
-        if current == end:
+        if (i, j) == end:
             break
         
-        if current in visited:
+        if (i, j) in visited:
             continue
-        visited.add(current)
+        visited.add((i, j))
 
-        i,j = current
-        for n in neighbors(current):
-            ii,jj = n
+        for ii, jj in neighbors(i, j):
             if grid[ii][jj] <= 1 + grid[i][j]:
-                heapq.heappush(q, (cost + 1, n))
+                heapq.heappush(q, (cost + 1, (ii, jj)))
     
     return cost
 
