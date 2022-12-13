@@ -4,36 +4,37 @@ with open('input.txt') as f:
     data = f.read()
 
 
+def compare_literal(left, right):
+    if left < right:
+        return -1
+    if left == right:
+        return  0
+    if left > right:
+        return  1
+
+
 def compare(left, right):
-    if type(left) == int and type(right) == int:
-        if left < right:
-            return 1
-        if left == right:
-            return 0
-        if left > right:
-            return -1
-    
-    if type(left) == list and type(right) == list:
+    l_type = type(left)
+    r_type = type(right)
+
+    if (l_type, r_type) == (int, int):
+        return compare_literal(left, right)
+
+    elif (l_type, r_type) == (list, list):
         for l, r in zip(left, right):
-            c = compare(l, r)
+            if (c := compare(l, r)) != 0:
+                return c
 
-            if c == 1:
-                return 1
-            if c == -1:
-                return -1
+        return compare_literal(len(left), len(right))
 
-        if len(left) == len(right):
-            return 0
-        if len(left) < len(right):
-            return 1
-        if len(left) > len(right):
-            return -1
-    
-    if type(left) == int:
+    elif (l_type, r_type) == (int, list):
         return compare([left], right)
-    
-    if type(right) == int:
+
+    elif (l_type, r_type) == (list, int):
         return compare(left, [right])
+
+    else:
+        raise ValueError("Invalid input!")
 
 
 correct_pairs = 0
@@ -45,7 +46,7 @@ for i, group in enumerate(data.split('\n\n')):
     packets.append(left)
     packets.append(right)
 
-    if compare(left, right) in (0, 1):
+    if compare(left, right) in (0, -1):
         correct_pairs += i + 1
 
 print("Part 1:", correct_pairs)
@@ -53,7 +54,7 @@ print("Part 1:", correct_pairs)
 
 packets.append([[2]])
 packets.append([[6]])
-packets.sort(key=cmp_to_key(compare), reverse=True)
+packets.sort(key=cmp_to_key(compare))
 decoder_key = (packets.index([[2]])+1) * (packets.index([[6]])+1)
 
 print("Part 2:", decoder_key)
