@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 with open('input.txt') as f:
     data = f.read()
 
@@ -10,41 +8,29 @@ grid = [['.' for _ in range(1000)] for _ in range(1000)]
 i_max = 0
 for line in data.splitlines():
     split = line.split(' -> ')
-    i,j = None, None
+    i, j = None, None
     for s in split:
-        ii, jj = int(s.split(',')[1]), int(s.split(',')[0])
+        ii, jj = map(int, s.split(',')[::-1])
         i_max = max(i_max, ii)
         
-        if (i,j) != (None, None):
-            if ii != i:
-                if i < ii:
-                    for iii in range(i, ii+1):
-                        grid[iii][jj] = '#'
-                else:
-                    for iii in range(ii, i + 1):
-                        grid[iii][jj] = '#'
-            else:
-                if j < jj:
-                    for jjj in range(j, jj+1):
-                        grid[ii][jjj] = '#'
-                else:
-                    for jjj in range(jj, j+1):
-                        grid[ii][jjj] = '#'
+        if (i, j) != (None, None):
+            for iii in range(min(i, ii), max(i, ii) + 1):
+                for jjj in range(min(j, jj), max(j, jj) + 1):
+                    grid[iii][jjj] = '#'
 
-        i,j = ii, jj
+        i, j = ii, jj
 
 
-for jj in range(len(grid[0])):
-    grid[i_max+2][jj] = '#'
+floor = i_max + 2
+for j in range(len(grid[0])):
+    grid[floor][j] = '#'
 
-broken = False
+
+part_1_done = False
+part_2_done = False
 counter = 0
 while True:
-    counter += 1
-    i,j = (0, 500)
-
-    if grid[i][j] == 'o':
-        break
+    i, j = (0, 500)
     
     while True:
         if grid[i+1][j] == '.':
@@ -60,12 +46,17 @@ while True:
             continue
         else:
             if grid[i][j] == 'o':
-                broken = True
+                part_2_done = True
             grid[i][j] = 'o'
             break
     
-    if broken:
+    if not part_1_done and i > i_max:
+        part_1_done = True
+        
+        print("Part 1:", counter)
+
+    if part_2_done:
+        print("Part 2:", counter)
         break
 
-
-print(counter-1)
+    counter += 1
