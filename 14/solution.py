@@ -35,15 +35,12 @@ while True:
     while True:
         if grid[i+1][j] == '.':
             i += 1
-            continue
-        if grid[i+1][j-1] == '.':
+        elif grid[i+1][j-1] == '.':
             i += 1
             j -= 1
-            continue
-        if grid[i+1][j+1] == '.':
+        elif grid[i+1][j+1] == '.':
             i += 1
             j += 1
-            continue
         else:
             if grid[i][j] == 'o':
                 part_2_done = True
@@ -52,7 +49,7 @@ while True:
     
     if not part_1_done and i > i_max:
         part_1_done = True
-        
+
         print("Part 1:", counter)
 
     if part_2_done:
