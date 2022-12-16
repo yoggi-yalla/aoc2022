@@ -98,7 +98,8 @@ merged_x_ranges.append((x1, x2))
 
 count = 0
 for x1, x2 in merged_x_ranges:
-    count += (x2 - x1)
+    count += (x2 - x1 + 1)
+count -= sum(1 for _, y in beacons if y == row)
 
 print("Part 1:", count)
 
