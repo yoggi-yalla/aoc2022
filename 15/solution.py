@@ -1,9 +1,6 @@
 import itertools
 import re
 
-pattern = re.compile(r".*?(-?\d+).*?(-?\d+).*?(-?\d+).*?(-?\d+)")
-
-
 with open('input.txt') as f:
     data = f.read()
 
@@ -20,17 +17,6 @@ def dst(p1,p2):
     return x_dst(p1, p2) + y_dst(p1, p2)
 
 
-sensors = set()
-beacons = set()
-for line in data.splitlines():
-    x, y, xx, yy = map(int, re.match(pattern, line).groups())
-
-    d = dst((x, y), (xx, yy))
-
-    sensors.add((x, y, d))
-    beacons.add((xx, yy))
-
-
 def get_lines(sensor):
     x, y, d = sensor
     return (
@@ -39,12 +25,6 @@ def get_lines(sensor):
         ((x, y-d), (x+d, y)),
         ((x, y+d), (x+d, y)),
     )
-
-
-lines = set()
-for s in sensors:
-    for l in get_lines(s):
-        lines.add(l)
 
 
 def intersection_point(l1, l2):
@@ -69,6 +49,67 @@ def intersection_point(l1, l2):
             return set()
 
 
+def contains(p, sensor):
+    x, y, d = sensor
+    xx, yy = p
+    dd = d - abs(y-yy)
+    if dd >= 0:
+        if x-dd <= xx <= x+dd:
+            return True
+    return False
+
+
+# Parse data
+pattern = re.compile(r".*?(-?\d+).*?(-?\d+).*?(-?\d+).*?(-?\d+)")
+
+sensors = set()
+beacons = set()
+for line in data.splitlines():
+    x, y, xx, yy = map(int, re.match(pattern, line).groups())
+
+    d = dst((x,y),(xx,yy))
+
+    sensors.add((x,y,d))
+    beacons.add((xx,yy))
+
+
+# Part 1
+row = 2000000
+x_ranges = []
+for x, y, d in sensors:
+    dd = d - abs(y - row)
+    if dd >= 0:
+        x_ranges.append((x - dd, x + dd))
+x_ranges.sort()
+
+
+merged_x_ranges = []
+x1, x2 = x_ranges[0]
+for xx1, xx2 in x_ranges[1:]:
+    if xx1 > x2:
+        merged_x_ranges.append((x1,x2))
+        x1, x2 = xx1, xx2
+    elif xx2 > x2:
+        x2 = xx2
+    else:
+        continue
+merged_x_ranges.append((x1, x2))
+
+
+count = 0
+for x1, x2 in merged_x_ranges:
+    count += (x2 - x1)
+
+print("Part 1:", count)
+
+
+# Part 2
+lines = set()
+for s in sensors:
+    for l in get_lines(s):
+        lines.add(l)
+
+
 intersections = set()
 for l1, l2 in itertools.combinations(lines, 2):
     intersections |= intersection_point(l1, l2)
@@ -84,20 +125,10 @@ for p1, p2 in itertools.combinations(intersections, 2):
 
 
 xy_candidates = set()
-for p1, p2 in x_candidates:
-    for p3, p4 in y_candidates:
-        if x_dst(p1, p3) == 1 and y_dst(p1, p3) == 1:
-            xy_candidates.add((p3[0], p1[1]))
-
-
-def contains(p, sensor):
-    x, y, d = sensor
-    xx, yy = p
-    dd = d - abs(y-yy)
-    if dd >= 0:
-        if x-dd <= xx <= x+dd:
-            return True
-    return False
+for p1, _ in x_candidates:
+    for p2, _ in y_candidates:
+        if x_dst(p1, p2) == 1 and y_dst(p1, p2) == 1:
+            xy_candidates.add((p2[0], p1[1]))
 
 
 for p in xy_candidates:
@@ -105,8 +136,8 @@ for p in xy_candidates:
         if contains(p, s):
             break
     else:
-        print(4000000 * p[0] + p[1])
+        print("Part 2:", 4000000 * p[0] + p[1])
 
 
 import time
-print(time.process_time()) # 0.05s
+print(time.process_time()) # 0.07s
