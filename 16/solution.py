@@ -44,15 +44,15 @@ def get_possible_paths(available_rooms, time_limit):
             possible_paths.append(path)
             continue
 
-        for rate in available_rooms:
-            if rate not in visited:
-                l = shortest_path(current, rate)
-                q.append((rate, visited | frozenset([rate]), path + (rate,), clock + len(l)))
+        for room in available_rooms:
+            if room not in visited:
+                l = shortest_path(current, room)
+                q.append((room, visited | frozenset([room]), path + (room,), clock + len(l)))
     
     return possible_paths
 
 
-def get_best_result_and_path(possible_paths, time_limit):
+def get_best_result_and_path(possible_paths, shortest_paths, time_limit):
     results = []
 
     for path in possible_paths:    
@@ -62,7 +62,7 @@ def get_best_result_and_path(possible_paths, time_limit):
         pressure = 0
 
         for room in path:
-            l = shortest_path(current, room)
+            l = shortest_paths[current, room]
             pressure += velocity * min(time_limit - clock, len(l))
             clock += len(l)
             velocity += flow_rates[room]
@@ -93,7 +93,7 @@ for line in data.splitlines():
 
 
 shortest_paths = {}
-for r1, r2 in itertools.combinations(rooms_with_valves, 2):
+for r1, r2 in itertools.combinations(room_map.keys(), 2):
     sp = shortest_path(r1, r2)
     shortest_paths[r1, r2] = sp
     shortest_paths[r2, r1] = sp[::-1]
@@ -101,24 +101,24 @@ for r1, r2 in itertools.combinations(rooms_with_valves, 2):
 
 # Part 1
 paths = get_possible_paths(rooms_with_valves, 30)
-result, _ = get_best_result_and_path(paths, 30)
+result, _ = get_best_result_and_path(paths, shortest_paths, 30)
 
 print("Part 1:", result)
 
 
 # Part 2
 my_paths = get_possible_paths(rooms_with_valves, 26)
-my_result, my_rooms = get_best_result_and_path(my_paths, 26)
+my_result, my_rooms = get_best_result_and_path(my_paths, shortest_paths, 26)
 
 
 elephant_rooms = [r for r in rooms_with_valves if r not in my_rooms]
 elephant_paths = get_possible_paths(elephant_rooms, 26)
 
-elephant_result, elephant_path = get_best_result_and_path(elephant_paths, 26)
+elephant_result, elephant_path = get_best_result_and_path(elephant_paths, shortest_paths, 26)
 
 
 print("Part 2:", my_result + elephant_result)
 
 
 import time
-print(time.process_time()) # ~3mins  ¯\_(ツ)_/¯ 
+print(time.process_time()) # ~52s  ¯\_(ツ)_/¯ 
