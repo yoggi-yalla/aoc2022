@@ -7,8 +7,8 @@ with open('input.txt') as f:
 grid = [["#" for _ in range(9)]]
 
 
-jets = itertools.cycle(data)
-pieces = itertools.cycle((
+jets = itertools.cycle(enumerate(data))
+pieces = itertools.cycle(enumerate((
     [
         ["#", "#", "#", "#"]
     ],
@@ -32,7 +32,7 @@ pieces = itertools.cycle((
         ["#","#"],
         ["#","#"]
     ]
-))
+)))
 
 
 def collision_check(piece, x, y, grid):
@@ -47,30 +47,40 @@ def collision_check(piece, x, y, grid):
     return False
 
 
-highest_point = 0
-i = 0
-
-def draw(piece, x, y, grid):
+def insert(piece, x, y, grid):
     for i in range(len(piece)):
         for j in range(len(piece[0])):
             if piece[i][j] == '#':
                 grid[y+i][x+j] = '#'
 
 
-points = []
-x_positions = []
+def add_space_above(grid, n_rows):
+    return [["#"] + ['.' for _ in range(7)] + ["#"] for _ in range(n_rows)] + grid
 
-while i < 30000:
-    piece = next(pieces)
-    head_room = len(grid) - highest_point - 1
-    if len(piece) + 3 >= head_room:
-        grid = [["#"] + ['.' for _ in range(7)] + ["#"] for _ in range(len(piece) + 3 - head_room)] + grid
+
+states = {}
+highest_points = [0]
+
+
+i = 0
+pattern_found = False
+
+while True:
+    piece_index, piece = next(pieces)
+
+    space_above = len(grid) - highest_points[-1] - 1
+    space_needed = len(piece) + 3
+
+    rows_required = space_needed - space_above
+
+    if rows_required >= 0:
+        grid = add_space_above(grid, rows_required)
     else:
-        grid = grid[head_room - len(piece) - 3:]
+        grid = grid[-rows_required:]
 
     y, x = 0, 3
     while True:
-        jet = next(jets)
+        jet_index, jet = next(jets)
         if jet == "<":
             x -= 1
             if collision_check(piece, x, y, grid):
@@ -82,39 +92,39 @@ while i < 30000:
         
         y += 1
         if collision_check(piece, x, y, grid):
-            x_positions.append(x)
             y -= 1
-            draw(piece, x, y, grid)
+            insert(piece, x, y, grid)
             for ii, row in enumerate(grid):
                 if "#" in row[1:-1]:
-                    highest_point = len(grid) - ii - 1
-                    points.append(highest_point)
+                    highest_points.append(len(grid) - ii - 1)
                     break
             break
 
+    state = (jet_index, piece_index, "".join(itertools.chain(*grid[:30])))
+
+    if state in states and not pattern_found:
+        pattern_start, pattern_end = states[state], i
+        pattern_found = True
+
+    states[state] = i
+
     i += 1
-
+    
     if i == 2022:
-        print("Part 1:", highest_point)
-
-
-dy = []
-for p, pp in zip(points, points[1:]):
-    dy.append(pp-p)
-
-
-s = 20000
-for i in range(20,len(dy)):
-    if dy[s:s+i] == dy[s+i:s+2*i] == dy[s+2*i:s+3*i]:
+        print("Part 1:", highest_points[-1]) # 3102
+    
+    if i >= 2022 and pattern_found:
         break
 
 
-pattern = dy[s:s+i]
-start = dy[:s]
+d_height = [hh - h for h, hh in zip(highest_points, highest_points[1:])]
 
-pattern_sum = sum(pattern)
 
-n = (1000000000000-len(start)) // len(pattern)
-remainder = (1000000000000 - len(start)) % len(pattern)
+pattern = d_height[pattern_start:pattern_end]
+start_seq = d_height[:pattern_start]
 
-print("Part 2:", n * pattern_sum + sum(start) + sum(pattern[:remainder]))
+
+n = (1000000000000 - len(start_seq)) // len(pattern)
+remainder = (1000000000000 - len(start_seq)) % len(pattern)
+
+print("Part 2:", sum(start_seq) + n * sum(pattern) + sum(pattern[:remainder]))
