@@ -76,7 +76,6 @@ surface_area = len(all_surfaces) - sum(overlaps.values())
 print("Part 1:", surface_area)
 
 
-
 # Part 2
 outer_surfaces = set()
 
@@ -93,7 +92,7 @@ while q:
 
     grid[z][y][x] = 'o'
 
-    for xx,yy,zz in neighbors(x,y,z):
+    for xx, yy, zz in neighbors(x,y,z):
         if grid[zz][yy][xx] == '#':
             outer_surfaces |= all_surfaces & get_surfaces((x,y,z))
         else:
@@ -102,8 +101,7 @@ while q:
 print("Part 2:", len(outer_surfaces))
 
 
-
-# Prints out all cross sections of the droplet after it has been submerged in the water
+# Prints out all cross sections of the droplet after it has been submerged into the water
 '''
 for surface in grid:
     print()
