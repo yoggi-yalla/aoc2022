@@ -49,11 +49,11 @@ def get_best_result_and_path(possible_paths, shortest_paths, time_limit):
     results = []
 
     for path in possible_paths:    
-        current = path[0]
         clock = 0
         velocity = 0
         pressure = 0
 
+        current = path[0]
         for room in path[1:]:
             sp = shortest_paths[current, room]
             pressure += velocity * min(time_limit - clock, len(sp))
