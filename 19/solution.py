@@ -53,6 +53,17 @@ def most_nbr_of_geodes(bp, limit):
             q = qq
 
 
+        # If we have more resources than we can spend we can cap the amount
+        geode, obs, clay, ore = rocks
+        if rocks[3] + robots[3] * (limit - clock - 1) >= max_ore * (limit - clock):
+            ore = max_ore * (limit - clock) - robots[3] * (limit - clock - 1)
+        if rocks[2] + robots[2] * (limit - clock - 1) >= max_clay * (limit - clock):
+            clay = max_clay * (limit - clock) - robots[2] * (limit - clock - 1)
+        if rocks[1] + robots[1] * (limit - clock - 1) >= max_obs * (limit - clock):
+            obs = max_obs * (limit - clock) - robots[1] * (limit - clock - 1)
+        rocks = geode, obs, clay, ore
+
+
         if (clock, rocks, robots) in visited:
             continue
         visited.add((clock, rocks, robots))
@@ -63,15 +74,6 @@ def most_nbr_of_geodes(bp, limit):
 
 
         new_rocks = tuple(map(add, rocks, robots))
-
-        if rocks[3] >= bp[5] and rocks[1] >= bp[6]:
-            new_rocks_4 = tuple(map(sub, new_rocks, (0,bp[6],0,bp[5])))
-            new_robots_4 = tuple(map(add, robots, (1,0,0,0)))
-            q.append((clock+1, new_rocks_4, new_robots_4))
-
-            # If it's possible to build a geode robot we don't consider any other alternatives.
-            # This is not necessarily true for all inputs...
-            continue
 
         if rocks[3] >= bp[1]:
             if robots[3] < max_ore:
@@ -90,6 +92,11 @@ def most_nbr_of_geodes(bp, limit):
                 new_rocks_3 = tuple(map(sub, new_rocks, (0,0,bp[4],bp[3])))
                 new_robots_3 = tuple(map(add, robots, (0,1,0,0)))
                 q.append((clock+1, new_rocks_3, new_robots_3))
+
+        if rocks[3] >= bp[5] and rocks[1] >= bp[6]:
+            new_rocks_4 = tuple(map(sub, new_rocks, (0,bp[6],0,bp[5])))
+            new_robots_4 = tuple(map(add, robots, (1,0,0,0)))
+            q.append((clock+1, new_rocks_4, new_robots_4))
         
         q.append((clock+1, new_rocks, robots))
 
@@ -124,8 +131,3 @@ for bp in blueprints[:3]:
     results2.append(most_nbr_of_geodes(bp, 32))
 
 print("Part 2:", reduce(mul, results2))
-
-
-
-import time
-print(time.process_time()) # 88s ...
