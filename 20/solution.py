@@ -2,60 +2,61 @@ with open('input.txt') as f:
     data =f.read()
 
 
-def make_cycle(nums):
-    cycle = {}
-
-    for i in range(1, len(nums)-1):
-        cycle[i, nums[i]] = [(i - 1, nums[i - 1]), (i + 1, nums[i + 1])]
-
-    cycle[0, nums[0]] = [(len(nums) - 1, nums[-1]), (1, nums[1])]
-    cycle[len(nums) - 1, nums[-1]] = [(len(nums) - 2, nums[-2]), (0, nums[0])]
-
-    return cycle
+class Node:
+    def __init__(self, value) -> None:
+        self.value = value
+        self.next = None
+        self.prev = None
 
 
-def mix(cycle, nums):
-    for i, num in enumerate(nums):
-
-        current = i, num
-        p, n = cycle[current]
-        cycle[p][1] = n
-        cycle[n][0] = p
-
-        for _ in range(num % (len(nums) - 1)):
-            p, n = n, cycle[n][1]
-        
-        cycle[n][0] = current
-        cycle[current][1] = n
-
-        cycle[p][1] = current
-        cycle[current][0] = p
-
-
-def grove_coordinates(cycle, nums):
-    coords = []
+def connect(nodes):
+    for n1, n2 in zip(nodes, nodes[1:]):
+        n1.next = n2
+        n2.prev = n1
     
-    current = nums.index(0), 0
-    for i in range(3001):
-        if i % 1000 == 0:
-            coords.append(current[1])
-        current = cycle[current][1]
+    nodes[0].prev = nodes[-1]
+    nodes[-1].next = nodes[0]
 
+
+def mix(nodes, iterations=1):
+    for _ in range(iterations):
+        for node in nodes:
+
+            n = node.next
+            p = node.prev
+
+            p.next = n
+            n.prev = p
+
+            for _ in range(node.value % (len(nodes) - 1)):
+                p, n = n, n.next
+
+            p.next = node
+            n.prev = node
+
+            node.next = n
+            node.prev = p
+
+
+def grove_coordinates(nodes):
+    coords = []
+    for n in nodes:
+        if n.value == 0:
+            for _ in range(3):
+                for _ in range(1000):
+                    n = n.next
+                coords.append(n.value)
+            break
     return coords
 
 
-
-nums1 = [int(x) for x in data.splitlines()]
-nums2 = [x * 811589153 for x in nums1]
-
-cycle1 = make_cycle(nums1)
-cycle2 = make_cycle(nums2)
+nodes1 = [Node(int(x)) for x in data.splitlines()]
+connect(nodes1)
+mix(nodes1)
+print("Part 1:", sum(grove_coordinates(nodes1)))
 
 
-mix(cycle1, nums1)
-print("Part 1:", sum(grove_coordinates(cycle1, nums1)))
-
-
-for _ in range(10):
-    mix(cycle2, nums2)
-print("Part 2:", sum(grove_coordinates(cycle2, nums2)))
+nodes2 = [Node(int(x) * 811589153) for x in data.splitlines()]
+connect(nodes2)
+mix(nodes2, 10)
+print("Part 2:", sum(grove_coordinates(nodes2)))
