@@ -14,49 +14,22 @@ def make_cycle(nums):
     return cycle
 
 
-def swap_forward(cycle, current):
-    p = cycle[current][0]
-    n = cycle[current][1]
-    nn = cycle[n][1]
-
-    cycle[nn][0] = current
-    cycle[p][1] = n
-
-    cycle[current][0] = n
-    cycle[current][1] = nn
-
-    cycle[n][0] = p
-    cycle[n][1] = current
-
-
-def swap_backward(cycle, current):
-    n = cycle[current][1]
-    p = cycle[current][0]
-    pp = cycle[p][0]
-
-    cycle[pp][1] = current
-    cycle[n][0] = p
-
-    cycle[current][0] = pp
-    cycle[current][1] = p
-
-    cycle[p][0] = current
-    cycle[p][1] = n
-
-
 def mix(cycle, nums):
     for i, num in enumerate(nums):
-        if num % (len(nums) - 1) == 0:
-            continue
 
         current = i, num
+        p, n = cycle[current]
+        cycle[p][1] = n
+        cycle[n][0] = p
 
-        if num > 0:
-            for _ in range(num % (len(nums) - 1)):
-                swap_forward(cycle, current)
-        else:
-            for _ in range(-num % (len(nums) - 1)):
-                swap_backward(cycle, current)
+        for _ in range(num % (len(nums) - 1)):
+            p, n = n, cycle[n][1]
+        
+        cycle[n][0] = current
+        cycle[current][1] = n
+
+        cycle[p][1] = current
+        cycle[current][0] = p
 
 
 def grove_coordinates(cycle, nums):
