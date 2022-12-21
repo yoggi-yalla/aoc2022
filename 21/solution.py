@@ -29,34 +29,25 @@ def resolve(name, nodes):
         raise ValueError('Invalid input!')
 
 
-def f(human_input, nodes):
-    left = nodes['root'][0]
-    right = nodes['root'][2]
-
-    nodes['humn'] = [str(human_input)]
-
-    return resolve(left, nodes) - resolve(right, nodes)
-
-
 def sign(x):
     return x // abs(x)
 
 
-def binary_search(f, lower, upper, nodes):
-    l_value = f(lower, nodes)
-    u_value = f(upper, nodes)
+def binary_search(f, lower, upper):
+    l_value = f(lower)
+    u_value = f(upper)
 
     if sign(l_value) == sign(u_value):
         raise ValueError(f"The range [{lower}, {upper}] does not contain zero")
 
     if l_value > u_value:
-        ff = lambda human_input, nodes: -f(human_input, nodes)
+        ff = lambda x: -f(x)
     else:
         ff = f
 
     while lower <= upper:
         mid = (lower + upper) // 2
-        m_value = ff(mid, nodes)
+        m_value = ff(mid)
 
         if m_value == 0:
             return mid
@@ -70,6 +61,17 @@ def binary_search(f, lower, upper, nodes):
     return lower
 
 
+def find_root_equality(nodes):
+    left = nodes['root'][0]
+    right = nodes['root'][2]
+
+    def goal_seek_function(human_input):
+        nodes['humn'] = [str(human_input)]
+        return resolve(left, nodes) - resolve(right, nodes)
+    
+    return binary_search(goal_seek_function, 1, int(1e15))
+
+
 nodes = {}
 
 for line in data.splitlines():
@@ -78,4 +80,8 @@ for line in data.splitlines():
 
 
 print("Part 1:", int(resolve('root', nodes)))
-print("Part 2:", binary_search(f, 1, int(1e15), nodes))
+print("Part 2:", find_root_equality(nodes))
+
+
+import time
+print(time.process_time()) # <0.1s
