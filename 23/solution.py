@@ -83,6 +83,8 @@ while True:
         elves.remove(k)
         elves.add(v)
 
+    d = (d + 1) % 4
+    round += 1
 
     if round == 10:
         min_i = min(e[0] for e in elves)
@@ -90,12 +92,12 @@ while True:
         min_j = min(e[1] for e in elves)
         max_j = max(e[1] for e in elves)
 
-        print("Part 1:", (max_i - min_i) * (max_j - min_j) - len(elves))
+        print("Part 1:", (max_i - min_i + 1) * (max_j - min_j + 1) - len(elves))
 
 
     if len(proposals) == 0:
-        print("Part 2:", round + 1)
+        print("Part 2:", round)
         break
     
-    d = (d + 1) % 4
-    round += 1
+import time
+print(time.process_time())
