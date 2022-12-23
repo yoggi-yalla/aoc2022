@@ -6,26 +6,26 @@ with open('input.txt') as f:
 
 north_directions = (
     (-1, -1),
-    (-1, 0),
-    (-1, 1)
+    (-1,  0),
+    (-1,  1)
 )
 
 south_directions = (
     (1,-1),
-    (1,0),
-    (1,1)
+    (1, 0),
+    (1, 1)
 )
 
 west_directions = (
     (-1, -1),
-    (0, -1),
-    (1, -1)
+    ( 0, -1),
+    ( 1, -1)
 )
 
 east_directions = (
     (-1, 1),
-    (0, 1),
-    (1, 1)
+    ( 0, 1),
+    ( 1, 1)
 )
 
 sorted_directions = (
@@ -43,6 +43,11 @@ all_directions = (
 )
 
 
+def neighbors(i, j, directions):
+    for di, dj in directions:
+        yield i + di, j + dj
+
+
 elves = set()
 for i, line in enumerate(data.splitlines()):
     for j, ch in enumerate(line):
@@ -57,8 +62,7 @@ while True:
     proposal_counter = defaultdict(int)
 
     for (i, j) in elves:
-        for di, dj in all_directions:
-            ii, jj = i + di, j + dj
+        for (ii, jj) in neighbors(i, j, all_directions):
             if (ii, jj) in elves:
                 break
         else:
@@ -66,8 +70,7 @@ while True:
 
         for inc in range(4):
             dd = (d + inc) % 4
-            for di, dj in sorted_directions[dd]:
-                ii, jj = i + di, j + dj
+            for (ii, jj) in neighbors(i, j, sorted_directions[dd]):
                 if (ii, jj) in elves:
                     break
             else:
@@ -98,6 +101,3 @@ while True:
     if len(proposals) == 0:
         print("Part 2:", round)
         break
-    
-import time
-print(time.process_time())
