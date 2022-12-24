@@ -23,8 +23,7 @@ start = (0, 0)
 goal = (len(grid)-1, len(grid[0])-1)
 
 actual_start = (-1, 0)
-actual_goal = (goal[0]+1,goal[1])
-
+actual_goal = (goal[0] + 1, goal[1])
 
 
 def next_grid(grid):
@@ -45,24 +44,25 @@ def next_grid(grid):
     return tuple(tuple(tuple(sorted(spot)) for spot in row) for row in new_grid)
 
 
+def get_all_grids(grid):
+    all_grids = {0: grid}
+    all_grids_set = set([grid])
 
-i = 0
-all_blizzards = {}
-all_blizzards[i] = grid
-all_blizzards_set = set([grid])
+    i = 1
+    while True:
+        grid = next_grid(grid)
+        if grid in all_grids_set:
+            break
 
-new_grid = next_grid(grid)
-while True:
-    i += 1
-    if new_grid in all_blizzards_set:
-        break
-    all_blizzards[i] = new_grid
-    all_blizzards_set.add(new_grid)
+        all_grids[i] = grid
+        all_grids_set.add(grid)
 
-    new_grid = next_grid(new_grid)
+        i += 1
 
-nbr_blizzards = len(all_blizzards)
+    return all_grids, len(all_grids)
 
+
+all_grids, nbr_grids = get_all_grids(grid)
 
 
 def neighbors(state):
@@ -70,19 +70,19 @@ def neighbors(state):
     i, j = pos
     options = []
 
-    new_grid = all_blizzards[(time+1)%nbr_blizzards]
+    new_grid = all_grids[(time+1)%nbr_grids]
 
     if pos == actual_start:
-        options.append((time+1, (i,j), new_grid))
+        options.append((time+1, (i, j), new_grid))
         if new_grid[0][0] == EMPTY:
-            options.append((time+1, (0,0), new_grid))
+            options.append((time+1, (0, 0), new_grid))
         return options
 
     if pos == actual_goal:
-        options.append((time+1, (i,j), new_grid))
-        ii,jj = goal
+        options.append((time+1, (i, j), new_grid))
+        ii, jj = goal
         if new_grid[ii][jj] == EMPTY:
-            options.append((time+1, (ii,jj), new_grid))
+            options.append((time+1, (ii, jj), new_grid))
         return options
 
     if new_grid[i][j] == EMPTY:
@@ -90,7 +90,7 @@ def neighbors(state):
     
     if j > 0:
         if new_grid[i][j-1] == EMPTY:
-            options.append((time+1, (i,j-1), new_grid))
+            options.append((time+1, (i, j-1), new_grid))
 
     if i > 0:
         if new_grid[i-1][j] == EMPTY:
@@ -135,11 +135,15 @@ def run(start, goal, grid, time):
             ec = tt + min_cost(pp, goal)
             heapq.heappush(q, (ec, tt, pp, gg))
 
-    return time + 1
+    time += 1
+    grid = next_grid(grid)
 
-t1 = run(actual_start, goal, grid, 0)
-t2 = run(actual_goal, start, grid, t1)
-t3 = run(actual_start, goal, grid, t2)
+    return time, grid
+
+
+t1, g1 = run(actual_start, goal, grid, 0)
+t2, g2 = run(actual_goal, start, g1, t1)
+t3, g3 = run(actual_start, goal, g2, t2)
 
 print("Part 1:", t1)
 print("Part 2:", t3)
